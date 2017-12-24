@@ -43,29 +43,85 @@ public class LinkedListImpl<T> implements List<T> {
     @Override
     public Object[] toArray() {
         // BEGIN (write your solution here)
-        T[] m = (T[])new Object[this.size()];
+        Object[] m = new Object[this.size()];
+        int i=0;
+        for (Item<T> item = first; item != null; item=item.next) {
+            m[i++] = item.getElement();
+        }
+        return m;
         // END
     }
 
     @Override
     public <T1> T1[] toArray(T1[] a) {
         // BEGIN (write your solution here)
+        if (a.length < size)
+            a = (T1[])java.lang.reflect.Array.newInstance(
+                    a.getClass().getComponentType(), size);
+        int i = 0;
+        Object[] result = a;
+        for (Item<T> x = first; x != null; x = x.next)
+            result[i++] = x.getElement();
 
+        if (a.length > size)
+            a[size] = null;
+
+        return a;
         // END
     }
 
     @Override
     public boolean add(final T t) {
-        // BEGIN (write your solution here)
-            
-        // END
+        /*TODO
+            if no any elemetns add new one with null last and first
+            find last element, add new node and set pointers
+         */
+        Item<T> p = null;
+        Item<T> l = null;
+
+        if ((size == 0) && (first == null)) {
+            first = new Item<T>(t, null, null);
+            last = first;
+         }
+         else {
+            Item<T> item = new Item<T>(t, last,null);
+            item.prev =last;
+            last.next = item;
+            last = item;
+            size++;
+        }
+        return true;
     }
 
     @Override
     public boolean remove(final Object o) {
-        // BEGIN (write your solution here)
-
-        // END
+        /** TODO
+         *  remove first occurence
+         */
+        for(Item<T> i = first; i != null; i=i.next) {
+            if (o == null) {
+                return false;
+            }
+            if (i.equals(o)) {
+                if(i == first) {
+                    first = i.next;
+                    first.prev = null;
+                    i.next = null;
+                }else if (i == last) {
+                    last = i.prev;
+                    last.next = null;
+                    i.prev = null;
+                }else {
+                    i.prev.next = i.next;
+                    i.next.prev = i.prev;
+                    i.next = null;
+                    i.prev = null;
+                }
+                size--;
+                return true;
+            }
+            return false;
+        }
     }
 
     @Override
@@ -103,14 +159,32 @@ public class LinkedListImpl<T> implements List<T> {
     @Override
     public void clear() {
 // BEGIN (write your solution here)
-
+        for (Item<T> item=first; item != null;) {
+            Item<T> next = item.next;
+            item.next=null;
+            item.prev=null;
+            item=next;
+        }
+        last=first=null;
+        size = 0;
 // END
     }
 
     @Override
     public T remove(final int index) {
 // BEGIN (write your solution here)
+    if (index > size) {
+        return null;
+    }
 
+    int i=-1;
+    for(Item<T> item=first; item != null; item=item.next) {
+        if (++i == index) {
+            T removedItem = item.element;
+            remove(item);
+            return removedItem;
+        }
+    }
 // END
     }
 
@@ -140,13 +214,21 @@ public class LinkedListImpl<T> implements List<T> {
     @Override
     public int indexOf(final Object target) {
         // BEGIN (write your solution here)
-
+        int i=0;
+        for (Item<T> item = first; item != null; item=item.next) {
+            if (item.equals(target)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
         // END
     }
 
     @Override
     public void add(final int index, final T element) {
         throw new UnsupportedOperationException();
+
     }
 
     @Override
@@ -157,14 +239,28 @@ public class LinkedListImpl<T> implements List<T> {
     @Override
     public T set(final int index, final T element) {
 // BEGIN (write your solution here)
-
+        int i=0;
+        T oldElement = null;
+        for (Item<T> item = first; item != null; item=item.next) {
+            if (index == i++) {
+                oldElement=item.getElement();
+                item.element=element;
+            }
+        }
+        return oldElement;
 // END
     }
 
     @Override
     public T get(final int index) {
 // BEGIN (write your solution here)
-
+        int i=0;
+        for(Item<T> item = first;  item != null; item=item.next) {
+            if (i++ == index) {
+                return item.getElement();
+            }
+        }
+        return null;
 // END
     }
 
