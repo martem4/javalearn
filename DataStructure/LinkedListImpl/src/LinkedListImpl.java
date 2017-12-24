@@ -25,13 +25,12 @@ public class LinkedListImpl<T> implements List<T> {
     @Override
     public boolean contains(final Object o) {
         // BEGIN (write your solution here)
-        Boolean contain = false;
-        for (T t  : this) {
-            if (t.equals(o)) {
-                contain = true;
+        for (Item<T> item=first; item != null; item=item.next) {
+            if (item.equals(o)) {
+                return true;
             }
         }
-        return contain;
+        return false;
         // END
     }
 
@@ -43,12 +42,15 @@ public class LinkedListImpl<T> implements List<T> {
     @Override
     public Object[] toArray() {
         // BEGIN (write your solution here)
-        Object[] m = new Object[this.size()];
-        int i=0;
-        for (Item<T> item = first; item != null; item=item.next) {
-            m[i++] = item.getElement();
+        if (this.size > 0) {
+            Object[] m = new Object[this.size()];
+            int i = 0;
+            for (Item<T> item = first; item != null; item = item.next) {
+                m[i++] = item.getElement();
+            }
+            return m;
         }
-        return m;
+        return null;
         // END
     }
 
@@ -73,7 +75,7 @@ public class LinkedListImpl<T> implements List<T> {
     @Override
     public boolean add(final T t) {
         /*TODO
-            if no any elemetns add new one with null last and first
+            if no any elements add new one with null last and first
             find last element, add new node and set pointers
          */
         Item<T> p = null;
@@ -120,8 +122,8 @@ public class LinkedListImpl<T> implements List<T> {
                 size--;
                 return true;
             }
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -185,6 +187,7 @@ public class LinkedListImpl<T> implements List<T> {
             return removedItem;
         }
     }
+    return null;
 // END
     }
 
@@ -279,9 +282,9 @@ public class LinkedListImpl<T> implements List<T> {
         }
 
         public ElementsIterator(final int index) {
-// BEGIN (write your solution here)
+        // BEGIN (write your solution here)
 
-// END
+        // END
         }
 
         @Override
@@ -292,7 +295,8 @@ public class LinkedListImpl<T> implements List<T> {
         @Override
         public T next() {
 // BEGIN (write your solution here)
-
+            current = current.next;
+            return current.getElement();
 // END
         }
 
@@ -311,35 +315,44 @@ public class LinkedListImpl<T> implements List<T> {
         @Override
         public int previousIndex() {
 // BEGIN (write your solution here)
-
+            if (hasPrevious()) {
+                return indexOf(current.prev);
+            }
 // END
+            return -1;
         }
 
         @Override
         public int nextIndex() {
 // BEGIN (write your solution here)
-
+            if (hasNext()) {
+                return indexOf(current.next);
+            }
+            return -1;
 // END
         }
 
         @Override
         public boolean hasPrevious() {
 // BEGIN (write your solution here)
-
+            return current.prev != null;
 // END
         }
 
         @Override
         public T previous() {
 // BEGIN (write your solution here)
-
+            if (hasPrevious()) {
+                return current.getPrev().getElement();
+            }
+            return null;
 // END
         }
 
         @Override
         public void remove() {
 // BEGIN (write your solution here)
-
+            LinkedListImpl.this.remove(current);
 // END
         }
 
