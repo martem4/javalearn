@@ -4,7 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.ListIterator;
 import java.util.Iterator;
 
-public class LinkedListImpl<T> implements List<T> {
+public class LinkedList<T> implements List<T> {
 
     private Item<T> first = null;
 
@@ -74,25 +74,43 @@ public class LinkedListImpl<T> implements List<T> {
 
     @Override
     public boolean add(final T t) {
-        /*TODO
+	     /*TODO
             if no any elements add new one with null last and first
             find last element, add new node and set pointers
          */
-        Item<T> p = null;
-        Item<T> l = null;
-
         if ((size == 0) && (first == null)) {
             first = new Item<T>(t, null, null);
             last = first;
-         }
-         else {
+        }
+        else {
             Item<T> item = new Item<T>(t, last,null);
-            item.prev =last;
+            item.prev = last;
             last.next = item;
             last = item;
-            size++;
         }
+
+        size++;
         return true;
+    }
+
+    private   void unlink(Item<T> item) {
+        if (item == first) {
+            first = item.getNext();
+            first.prev = null;
+            item.next = null;
+        }
+        else if (item == last) {
+            last = last.prev;
+            last.next = null;
+            item.prev = null;
+        }
+        else {
+            item.prev.next = item.next;
+            item.next.prev = item.prev;
+            item.next = null;
+            item.prev = null;
+        }
+        item = null;
     }
 
     @Override
@@ -101,24 +119,14 @@ public class LinkedListImpl<T> implements List<T> {
          *  remove first occurence
          */
         for(Item<T> i = first; i != null; i=i.next) {
-            if (o == null) {
-                return false;
+            if (i.element == null) {
+                unlink(i);
+                size--;
+                return true;
             }
-            if (i.equals(o)) {
-                if(i == first) {
-                    first = i.next;
-                    first.prev = null;
-                    i.next = null;
-                }else if (i == last) {
-                    last = i.prev;
-                    last.next = null;
-                    i.prev = null;
-                }else {
-                    i.prev.next = i.next;
-                    i.next.prev = i.prev;
-                    i.next = null;
-                    i.prev = null;
-                }
+
+            if (i.element.equals(o)) {
+                unlink(i);
                 size--;
                 return true;
             }
@@ -160,7 +168,7 @@ public class LinkedListImpl<T> implements List<T> {
 
     @Override
     public void clear() {
-// BEGIN (write your solution here)
+        // BEGIN (write your solution here)
         for (Item<T> item=first; item != null;) {
             Item<T> next = item.next;
             item.next=null;
@@ -169,31 +177,28 @@ public class LinkedListImpl<T> implements List<T> {
         }
         last=first=null;
         size = 0;
-// END
+        // END
     }
 
     @Override
-    public T remove(final int index) {
-// BEGIN (write your solution here)
-    if (index > size) {
-        return null;
-    }
-
-    int i=-1;
-    for(Item<T> item=first; item != null; item=item.next) {
-        if (++i == index) {
-            T removedItem = item.element;
-            remove(item);
-            return removedItem;
+    public T remove(final int index) throws IndexOutOfBoundsException{
+        // BEGIN (write your solution here)
+        if (index > size) {
+            return null;
         }
-    }
-    return null;
-// END
+
+        int i=-1;
+        for(Item<T> item=first; item != null; item=item.next) {
+            if (++i == index) {
+                T removedItem = item.element;
+                remove(item);
+                return removedItem;
+            }
+        }
+        return null;
+        // END
     }
 
-// BEGIN (write your solution here)
-
-    // END
     @Override
     public List<T> subList(final int start, final int end) {
         return null;
@@ -216,7 +221,7 @@ public class LinkedListImpl<T> implements List<T> {
 
     @Override
     public int indexOf(final Object target) {
-        // BEGIN (write your solution here)
+// BEGIN (write your solution here)
         int i=0;
         for (Item<T> item = first; item != null; item=item.next) {
             if (item.equals(target)) {
@@ -231,7 +236,6 @@ public class LinkedListImpl<T> implements List<T> {
     @Override
     public void add(final int index, final T element) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -241,7 +245,7 @@ public class LinkedListImpl<T> implements List<T> {
 
     @Override
     public T set(final int index, final T element) {
-// BEGIN (write your solution here)
+        // BEGIN (write your solution here)
         int i=0;
         T oldElement = null;
         for (Item<T> item = first; item != null; item=item.next) {
@@ -256,7 +260,7 @@ public class LinkedListImpl<T> implements List<T> {
 
     @Override
     public T get(final int index) {
-// BEGIN (write your solution here)
+        // BEGIN (write your solution here)
         int i=0;
         for(Item<T> item = first;  item != null; item=item.next) {
             if (i++ == index) {
@@ -264,12 +268,8 @@ public class LinkedListImpl<T> implements List<T> {
             }
         }
         return null;
-// END
+        // END
     }
-
-// BEGIN (write your solution here)
-
-// END
 
     private class ElementsIterator implements ListIterator<T> {
 
@@ -282,22 +282,41 @@ public class LinkedListImpl<T> implements List<T> {
         }
 
         public ElementsIterator(final int index) {
-        // BEGIN (write your solution here)
-
-        // END
+            // BEGIN (write your solution here)
+            if (index <= size) {
+                int i = 0;
+                for (Item item=first; item != null; item=item.next) {
+                    if (i++ == index)
+                        current = item;
+                }
+            }
+            else {
+                throw new NoSuchElementException();
+            }
+            // END
         }
 
         @Override
         public boolean hasNext() {
-            return current != null;
+            if( current==null) {
+                throw new NoSuchElementException();
+            }
+            else if (current.next == null) {
+                return false;
+            }
+            return true;
         }
 
         @Override
         public T next() {
-// BEGIN (write your solution here)
-            current = current.next;
-            return current.getElement();
-// END
+        // BEGIN (write your solution here)
+                if (hasNext()) {
+                    current = current.next;
+                    return current.getElement();
+                }
+                else
+                    throw new NoSuchElementException();
+        // END
         }
 
         @Override
@@ -307,9 +326,13 @@ public class LinkedListImpl<T> implements List<T> {
 
         @Override
         public void set(final T element) {
-// BEGIN (write your solution here)
-
-// END
+        // BEGIN (write your solution here)
+            if (current != null) {
+                current.element = element;
+            }
+            else
+                throw new NoSuchElementException();
+        // END
         }
 
         @Override
@@ -335,7 +358,11 @@ public class LinkedListImpl<T> implements List<T> {
         @Override
         public boolean hasPrevious() {
 // BEGIN (write your solution here)
-            return current.prev != null;
+            if (current != null)
+                return current.prev != null;
+            else
+                    throw new NoSuchElementException("Iterato " +
+                            "does't have any elements!");
 // END
         }
 
@@ -352,7 +379,7 @@ public class LinkedListImpl<T> implements List<T> {
         @Override
         public void remove() {
 // BEGIN (write your solution here)
-            LinkedListImpl.this.remove(current);
+            LinkedList.this.remove(current);
 // END
         }
 
@@ -385,4 +412,5 @@ public class LinkedListImpl<T> implements List<T> {
         }
 
     }
+
 }
